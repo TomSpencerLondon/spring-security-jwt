@@ -49,7 +49,7 @@ public class JWTUtil {
         return Jwts.builder().setClaims(claims).setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.ES256, SECRET_KEY).compact();
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
