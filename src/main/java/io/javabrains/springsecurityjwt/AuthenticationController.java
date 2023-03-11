@@ -37,7 +37,7 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-        userRepository.save(new MyUser("foo", "foo"));
+        userRepository.save(new MyUser("foo", passwordEncoder.encode("foo")));
         try {
 
             authenticationManager.authenticate(
