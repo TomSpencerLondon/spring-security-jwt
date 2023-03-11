@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-//@SecurityRequirement(name = "bearerAuth")
 public class HelloController {
 
     @GetMapping("/hello")
