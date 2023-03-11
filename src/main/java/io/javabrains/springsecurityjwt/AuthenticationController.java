@@ -5,12 +5,12 @@ import io.javabrains.springsecurityjwt.models.AuthenticationResponse;
 import io.javabrains.springsecurityjwt.models.MyUser;
 import io.javabrains.springsecurityjwt.repository.UserRepository;
 import io.javabrains.springsecurityjwt.util.JWTUtil;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 
 @RestController
-public class HelloResource {
+public class AuthenticationController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -34,11 +34,6 @@ public class HelloResource {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello World";
-    }
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {

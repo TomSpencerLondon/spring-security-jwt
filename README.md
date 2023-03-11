@@ -286,3 +286,105 @@ and then when we use the JWT token in our request to /hello:
 ![image](https://user-images.githubusercontent.com/27693622/224290349-03826e7f-2bbe-4ad0-9ac5-645da9e4f5cc.png)
 
 We receive an authenticated hello response with the http code 200.
+
+Added swaggerdoc open api with
+```pom.xml
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+```
+
+Add OpenAPI30Configuration:
+```java
+@Configuration
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
+public class OpenAPI30Configuration {
+}
+```
+
+Refer to the OpenAPI30Configuration annotation in the HelloController:
+```java
+@RestController
+//@SecurityRequirement(name = "bearerAuth")
+public class HelloController {
+
+    @GetMapping("/hello")
+    @Operation(summary = "My endpoint", security = @SecurityRequirement(name = "bearerAuth"))
+    public String hello() {
+        return "Hello World";
+    }
+}
+
+```
+
+Add swagger endpoint to Security config:
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Autowired
+    private MyUserDetailsService myUserDetailsService;
+
+    @Autowired
+    private JWTRequestFilter jwtRequestFilter;
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(myUserDetailsService);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+                .authorizeHttpRequests((authorize) ->
+                        {
+                            try {
+                                authorize
+                                        .requestMatchers("/authenticate", "/swagger-ui/**", "/v3/api-docs/**")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated()
+                                        .and().sessionManagement()
+                                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                );
+
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+}
+```
+Go to swagger url (http://localhost:8081/swagger-ui/index.html). Make post request for token:
+![image](https://user-images.githubusercontent.com/27693622/224477752-db5ad448-a6da-4047-9e78-cc641588b80e.png)
+
+![image](https://user-images.githubusercontent.com/27693622/224477868-52248c6d-284b-4074-acb8-47b969800964.png)
+
+
+Add JWT as bearer auth by pressing the padlock on right side:
+![image](https://user-images.githubusercontent.com/27693622/224477932-b49d7916-f66c-4444-afc4-d02b22c5e194.png)
+We then have 200 response from the get request.
+
+
